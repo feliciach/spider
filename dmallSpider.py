@@ -11,7 +11,7 @@ def urlReq(url):
     soup=BeautifulSoup(r.text, "lxml").find_all("ul",class_= "type-list")
     # print(soup.prettify())
     print(soup)
-    print(soup.find_all("li"))
+    print(re.findall(r'<a.*?>(.*?)<\/a>',r'\1',str(soup)))
 
     return
 if __name__=='__main__':
