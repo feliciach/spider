@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import re
 import urllib.request
-import requests
 import json
-
 import requests
 import time
 from bs4 import BeautifulSoup
@@ -20,46 +17,37 @@ def urlReq(url):
 
     for line in soup_class:
         for link in line.find_all("a"):
-            # name=link.find("a")
             lin=link['href']
             text=link.text
             ll[text]=lin
             link_list.append(lin)
-    # print(ll)
-    # print(soup.prettify())
-    # b=re.findall(r'<li.*?>(.*?)<\/li>',r'\1',soup)
-    # for c in b:
-    #     print(c)
-    print(time.time)
     return link_list
 
 def child_urlReq(c_url):
     r = urllib.request.urlopen(c_url).read()
     # r.encoding='utf-8'
     c_soup=BeautifulSoup(r, "lxml")
-    # print(c_soup)
-    c_soup_h=c_soup.find("div",id="app")
-    # https: // m.douban.com / rexxar / api / v2 / subject_collection / filter_movie_comedy_hot / items?os = ios & for_mobile = 1 & callback = jsonp1 & start = 0 & count = 18 & loc_id = 108288 & _ = 1522228776531
-    # https: // m.douban.com / rexxar / api / v2 / subject_collection / filter_movie_comedy_hot / items?os = ios & for_mobile = 1 & callback = jsonp2 & start = 18 & count = 18 & loc_id = 108288 & _ = 1522228781100
-    resource_url="https://m.douban.com/rexxar/api/v2/subject_collection/filter_movie_comedy_hot/items?os=ios&for_mobile=1&callback=jsonp1&start=0&count=18&loc_id=108288&_=1522228776531"
+    c_soup_h=c_soup.find_all("script")
+    x=str(c_soup_h[3]).split('\n')
+    y1,y2=x[2],x[3]
+    movie_tag=y1.lstrip('var TYPE = \'').rstrip('\';')
+    LOC_ID=y2.lstrip('var LOC_ID = \'').rstrip('\';')
+    t=time.time()
+    resource_url="https://m.douban.com/rexxar/api/v2/subject_collection/"+movie_tag+"/items?os=ios&for_mobile=1&callback=jsonp1&start=0&count=18&loc_id="+LOC_ID+"&_="+str(int(round(t * 1000)))
     header={
         "Acceptl":"*/*",
-        "Referer":"https://m.douban.com/movie/comedy",
+        "Referer":c_url,
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1",
     }
-    t=time.time()
-    print(int(round(t * 1000)))
+    # t=time.time()
+    # print(int(round(t * 1000)))
     r2=requests.get(resource_url,headers=header)
-    print(type(r2.text))
+    print(r2,type(r2.text))
     jsonp=r2.text.lstrip(';jsonp1(').rstrip(');')
     j=json.loads(jsonp)
-    print(type(j))
-    print(j)
     result=j['subject_collection_items']
-    print(type(result),result)
     movie_list=[]
     for i in result:
-        print(type(i),i)
         year=i['year']
         title=i['title']
         murl=i['url']
@@ -73,5 +61,5 @@ if __name__=='__main__':
     for list in tag_list:
         cild_rUrl="https://m.douban.com"+str(list)
         print(cild_rUrl)
-    movie_dict=child_urlReq("https://m.douban.com/movie/comedy")
-    print(movie_dict)
+        movie_dict=child_urlReq(cild_rUrl)
+        print(movie_dict)
