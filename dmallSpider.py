@@ -82,12 +82,8 @@ def writecsv(movie_list):
 if __name__=='__main__':
     requestUrl="https://m.douban.com/movie"
     tag_list=urlReq(requestUrl)
-    cild_rUrl = "https://m.douban.com/movie/comedy"
-    print(cild_rUrl)
-    movie_list=child_urlReq(cild_rUrl)
-    print(movie_list)
-    # for list in tag_list:
-    #     cild_rUrl="https://m.douban.com"+str(list)
-    #     print(cild_rUrl)
-    #     movie_list=child_urlReq(cild_rUrl)
-    #     print(movie_list)
+    for list in tag_list:
+        cild_rUrl="https://m.douban.com"+str(list)
+        print(cild_rUrl)
+        movie_list=child_urlReq(cild_rUrl)
+        print(movie_list)
