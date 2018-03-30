@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import urllib.request
 import json
-
+import csv
 import math
 import requests
 import time
@@ -28,7 +28,7 @@ def child_urlReq(c_url):
     return movie_dict
 
 def res_pagenum(c_url):
-    temp_j=trans_url(c_url,18)
+    temp_j=trans_url(c_url,0,1,18)
     total_num=temp_j["total"]
     page_num=math.ceil(total_num/18)
     print(total_num,page_num)
@@ -36,17 +36,21 @@ def res_pagenum(c_url):
 
 def res_info(c_url):
     temp_p=res_pagenum(c_url)
-    temp_j=trans_url(c_url,temp_p)
-    result=temp_j['subject_collection_items']
-    movie_list=[]
-    for i in result:
-        year=i['year']
-        title=i['title']
-        murl=i['url']
-        movie_list.append([title,year,murl])
+    temp_c=1
+    movie_list = []
+    while temp_c<=temp_p:
+        temp_start=18*(temp_c-1)
+        temp_j=trans_url(c_url,temp_start,temp_c,18)
+        result=temp_j['subject_collection_items']
+        for i in result:
+            year=i['year']
+            title=i['title']
+            murl=i['url']
+            movie_list.append([title,year,murl])
+        temp_c=temp_c+1
     return movie_list
 
-def trans_url(c_url,c_pageno):
+def trans_url(c_url,start_num,page_num,count):
     r = urllib.request.urlopen(c_url).read()
     # r.encoding='utf-8'
     c_soup=BeautifulSoup(r, "lxml")
@@ -56,8 +60,7 @@ def trans_url(c_url,c_pageno):
     movie_tag=y1.lstrip('var TYPE = \'').rstrip('\';')
     LOC_ID=y2.lstrip('var LOC_ID = \'').rstrip('\';')
     t=time.time()
-    page_num=1
-    resource_url="https://m.douban.com/rexxar/api/v2/subject_collection/"+movie_tag+"/items?os=ios&for_mobile=1&callback=jsonp"+str(page_num)+"&start=0&count="+str(c_pageno)+"&loc_id="+LOC_ID+"&_="+str(int(round(t * 1000)))
+    resource_url="https://m.douban.com/rexxar/api/v2/subject_collection/"+movie_tag+"/items?os=ios&for_mobile=1&callback=jsonp"+str(page_num)+"&start="+str(start_num)+"&count="+str(count)+"&loc_id="+LOC_ID+"&_="+str(int(round(t * 1000)))
     header={
         "Acceptl":"*/*",
         "Referer":c_url,
@@ -69,11 +72,14 @@ def trans_url(c_url,c_pageno):
     jsonpx=json.loads(jsonp)
     return jsonpx
 
+def writecsv(movie_list):
+
+    return
 if __name__=='__main__':
     requestUrl="https://m.douban.com/movie"
     tag_list=urlReq(requestUrl)
     for list in tag_list:
         cild_rUrl="https://m.douban.com"+str(list)
         print(cild_rUrl)
-        movie_dict=child_urlReq(cild_rUrl)
-        print(movie_dict)
+        movie_list=child_urlReq(cild_rUrl)
+        print(movie_list)
