@@ -48,6 +48,7 @@ def res_info(c_url):
             murl=i['url']
             movie_list.append([title,year,murl])
         temp_c=temp_c+1
+    writecsv(movie_list)
     return movie_list
 
 def trans_url(c_url,start_num,page_num,count):
@@ -73,13 +74,20 @@ def trans_url(c_url,start_num,page_num,count):
     return jsonpx
 
 def writecsv(movie_list):
-
+    csvFile=open('D:\douban.csv','w',newline='')
+    writer=csv.writer(csvFile)
+    m =len(movie_list)
+    writer.writerow(movie_list)
     return
 if __name__=='__main__':
     requestUrl="https://m.douban.com/movie"
     tag_list=urlReq(requestUrl)
-    for list in tag_list:
-        cild_rUrl="https://m.douban.com"+str(list)
-        print(cild_rUrl)
-        movie_list=child_urlReq(cild_rUrl)
-        print(movie_list)
+    cild_rUrl = "https://m.douban.com/movie/comedy"
+    print(cild_rUrl)
+    movie_list=child_urlReq(cild_rUrl)
+    print(movie_list)
+    # for list in tag_list:
+    #     cild_rUrl="https://m.douban.com"+str(list)
+    #     print(cild_rUrl)
+    #     movie_list=child_urlReq(cild_rUrl)
+    #     print(movie_list)
